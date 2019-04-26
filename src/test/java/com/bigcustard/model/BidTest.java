@@ -8,38 +8,49 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class BidTest {
 
-    private static final Bid buyBid = new Bid(BUY, 12345);
-    private static final Bid sellBid = new Bid(SELL, 12345);
-    private static final Bid equivalentBuyBid = new Bid(BUY, 12345);
-    private static final Bid highBuyBid = new Bid(BUY, 98765);
+    private static final Bid SAMPLE_BID = new Bid(BUY, 12345);
+    private static final Bid EQUIVALENT_BID = new Bid(BUY, 12345);
+    private static final Bid DIFFERENT_TYPE_BID = new Bid(SELL, 12345);
+    private static final Bid DIFFERENT_PRICE_BID = new Bid(BUY, 98765);
 
     @Test
     public void equals_returnsTrueIfOtherBidIsEquivalent() {
 
-        assertThat(buyBid).isEqualTo(buyBid);
-        assertThat(buyBid).isEqualTo(equivalentBuyBid);
+        assertThat(SAMPLE_BID).isEqualTo(SAMPLE_BID);
+        assertThat(SAMPLE_BID).isEqualTo(EQUIVALENT_BID);
     }
 
     @Test
     public void equals_returnsFalseIfOtherBidIsDifferent() {
 
-        assertThat(buyBid).isNotEqualTo(null);
-        assertThat(buyBid).isNotEqualTo("Not a bid");
-        assertThat(buyBid).isNotEqualTo(sellBid);
-        assertThat(buyBid).isNotEqualTo(highBuyBid);
+        assertThat(SAMPLE_BID).isNotEqualTo(null);
+        assertThat(SAMPLE_BID).isNotEqualTo("Not a bid");
+        assertThat(SAMPLE_BID).isNotEqualTo(DIFFERENT_TYPE_BID);
+        assertThat(SAMPLE_BID).isNotEqualTo(DIFFERENT_PRICE_BID);
     }
 
     @Test
-    public void hashCode_isAffectedByOrderType() {
+    public void hashCode_isSameForEquivalentBids() {
 
-        assertThat(buyBid.hashCode()).isNotEqualTo(sellBid.hashCode());
+        assertThat(SAMPLE_BID.hashCode()).isEqualTo(EQUIVALENT_BID.hashCode());
     }
 
     @Test
-    public void hashCode_isAffectedByPrice() {
+    public void hashCode_isDifferentIfBidsAreDifferent() {
 
-        Bid lowBid = new Bid(BUY, 12345);
-        Bid highBid = new Bid(BUY, 98765);
-        assertThat(lowBid.hashCode()).isNotEqualTo(highBid.hashCode());
+        assertThat(SAMPLE_BID.hashCode()).isNotEqualTo(DIFFERENT_TYPE_BID.hashCode());
+        assertThat(SAMPLE_BID.hashCode()).isNotEqualTo(DIFFERENT_PRICE_BID.hashCode());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructor_throwsIfNullOrderType() {
+
+        new Bid(null, 12345);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructor_throwsIfInvalidPrice() {
+
+        new Bid(BUY, -12345);
     }
 }

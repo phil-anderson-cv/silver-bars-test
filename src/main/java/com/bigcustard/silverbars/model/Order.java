@@ -1,4 +1,4 @@
-package com.bigcustard.model;
+package com.bigcustard.silverbars.model;
 
 public class Order {
 

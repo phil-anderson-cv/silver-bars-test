@@ -1,6 +1,6 @@
-package com.bigcustard.model;
+package com.bigcustard.silverbars.model;
 
-public final class Bid {
+public final class Bid implements Comparable<Bid> {
 
     private final OrderType buyOrSell;
     private final int pencePerKg; // Prices held in pence to avoid rounding issues.
@@ -46,5 +46,15 @@ public final class Bid {
     public int hashCode() {
 
         return pencePerKg * OrderType.values().length + buyOrSell.ordinal(); // Guaranteed unique
+    }
+
+    @Override
+    public int compareTo(Bid other) {
+
+        if(this.buyOrSell != other.buyOrSell) {
+            return this.buyOrSell.compareTo(other.buyOrSell); // Put BUYs coming before SELLs
+        } else {
+            return buyOrSell.comparePrices(this.pencePerKg, other.pencePerKg); // Delegate to the OrderType to sort by price
+        }
     }
 }

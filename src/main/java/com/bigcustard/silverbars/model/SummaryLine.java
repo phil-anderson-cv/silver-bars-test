@@ -1,6 +1,6 @@
 package com.bigcustard.silverbars.model;
 
-public class SummaryLine {
+public final class SummaryLine {
 
     private static final String TO_STRING_TEMPLATE = "%s: %.1f kg for £%.2f";
 

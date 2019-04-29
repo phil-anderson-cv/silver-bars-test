@@ -8,11 +8,15 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class OrderTest {
 
-    private static final Order SAMPLE_ORDER = new Order("userId", 1000, BUY, 12345);
-    private static final Order EQUIVALENT_ORDER = new Order("userId", 1000, BUY, 12345);
-    private static final Order DIFFERENT_USER_ORDER = new Order("otherId", 1000, BUY, 12345);
-    private static final Order DIFFERENT_QUANTITY_ORDER = new Order("userId", 9999, BUY, 12345);
-    private static final Order DIFFERENT_BID_ORDER = new Order("userId", 1000, SELL, 12345);
+
+    private static final Bid BUY_BID = new Bid(BUY, 12345);
+    private static final Bid SELL_BID = new Bid(SELL, 12345);
+
+    private static final Order SAMPLE_ORDER = new Order("userId", 1000, BUY_BID);
+    private static final Order EQUIVALENT_ORDER = new Order("userId", 1000, BUY_BID);
+    private static final Order DIFFERENT_USER_ORDER = new Order("otherId", 1000, BUY_BID);
+    private static final Order DIFFERENT_QUANTITY_ORDER = new Order("userId", 9999, BUY_BID);
+    private static final Order DIFFERENT_BID_ORDER = new Order("userId", 1000, SELL_BID);
 
     @Test
     public void equals_returnsTrueIfOtherOrderEquivalent() {
@@ -49,5 +53,11 @@ public class OrderTest {
     public void constructor_throwsIfBidIsNull() {
 
         new Order("userId", 1000, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructor_throwsIfInvalidQuantity() {
+
+        new Order("userId", -12345, BUY_BID);
     }
 }

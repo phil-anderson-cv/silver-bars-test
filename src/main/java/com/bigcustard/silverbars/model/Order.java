@@ -1,6 +1,8 @@
 package com.bigcustard.silverbars.model;
 
-public class Order {
+public final class Order {
+
+    private static final String TO_STRING_TEMPLATE = "%s: %.1f kg for £%.2f [%s]";
 
     private final String userId;
     private final int quantityInGrams; // Quantities held in grams to avoid rounding issues.
@@ -13,14 +15,13 @@ public class Order {
             throw new IllegalArgumentException("Bid must not be null");
         }
 
+        if(quantityInGrams <= 0) {
+            throw new IllegalArgumentException("QuantityInGrams must be greater than zero");
+        }
+
         this.userId = userId;
         this.quantityInGrams = quantityInGrams;
         this.bid = bid;
-    }
-
-    public Order(String userId, double quantityInKg, BuyOrSell buyOrSell, double priceInPounds) {
-
-        this(userId, (int) (quantityInKg * 1000), new Bid(buyOrSell, (int) (priceInPounds * 100)));
     }
 
     public String getUserId() {
@@ -58,5 +59,11 @@ public class Order {
         result = 31 * result + quantityInGrams;
         result = 31 * result + bid.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+
+        return String.format(TO_STRING_TEMPLATE, bid.getBuyOrSell(), quantityInGrams / 1000f, bid.getPencePerKg() / 100f, userId);
     }
 }

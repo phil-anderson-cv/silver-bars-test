@@ -1,5 +1,6 @@
 package com.bigcustard.silverbars;
 
+import com.bigcustard.silverbars.model.Bid;
 import com.bigcustard.silverbars.model.BuyOrSell;
 import com.bigcustard.silverbars.model.Order;
 import com.bigcustard.silverbars.model.SummaryLine;
@@ -69,7 +70,7 @@ public class LiveOrderBoardTest {
               .cancelOrder("testUser", SELL, 1.0, 100)
               .cancelOrder("testUser", BUY, 1.0, 999)
 
-              .validateSummary("BUY: 1.0 kg for £100.00");
+              .validateErrorCount(4);
     }
 
     @Test
@@ -157,6 +158,7 @@ public class LiveOrderBoardTest {
     private class OrderBoardTestHelper {
 
         private final LiveOrderBoard orderBoard;
+        private int errorCount;
 
         private OrderBoardTestHelper() {
 
@@ -165,15 +167,19 @@ public class LiveOrderBoardTest {
 
         private OrderBoardTestHelper registerOrder(String userId, BuyOrSell buyOrSell, double quantityInKg, double priceInPounds) {
 
-            Order order = new Order(userId, quantityInKg, buyOrSell, priceInPounds);
+            Order order = new Order(userId, (int) (quantityInKg * 1000), new Bid(buyOrSell, (int) (priceInPounds * 100)));
             orderBoard.register(order);
             return this;
         }
 
         private OrderBoardTestHelper cancelOrder(String userId, BuyOrSell buyOrSell, double quantityInKg, double priceInPounds) {
 
-            Order order = new Order(userId, quantityInKg, buyOrSell, priceInPounds);
-            orderBoard.cancel(order);
+            Order order = new Order(userId, (int) (quantityInKg * 1000), new Bid(buyOrSell, (int) (priceInPounds * 100)));
+            try {
+                orderBoard.cancel(order);
+            } catch(NonExistentOrderException e) {
+                errorCount++;
+            }
             return this;
         }
 
@@ -186,6 +192,13 @@ public class LiveOrderBoardTest {
             for(SummaryLine summaryLine : summary) {
                 assertThat(summaryLine.toString()).isEqualTo(expectedSummaryLines[i++]);
             }
+            return this;
+        }
+
+        private OrderBoardTestHelper validateErrorCount(int expectedErrorCount) {
+
+            assertThat(errorCount).isEqualTo(expectedErrorCount);
+            errorCount = 0;
             return this;
         }
     }

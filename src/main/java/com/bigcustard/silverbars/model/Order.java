@@ -18,9 +18,9 @@ public class Order {
         this.bid = bid;
     }
 
-    public Order(String userId, int quantiy, OrderType buyOrSell, int pencePerKg) {
+    public Order(String userId, double quantityInKg, BuyOrSell buyOrSell, double priceInPounds) {
 
-        this(userId, quantiy, new Bid(buyOrSell, pencePerKg));
+        this(userId, (int) (quantityInKg * 1000), new Bid(buyOrSell, (int) (priceInPounds * 100)));
     }
 
     public String getUserId() {

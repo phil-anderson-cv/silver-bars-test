@@ -2,8 +2,8 @@ package com.bigcustard.silverbars.model;
 
 import org.junit.Test;
 
-import static com.bigcustard.silverbars.model.OrderType.BUY;
-import static com.bigcustard.silverbars.model.OrderType.SELL;
+import static com.bigcustard.silverbars.model.BuyOrSell.BUY;
+import static com.bigcustard.silverbars.model.BuyOrSell.SELL;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class OrderTest {

@@ -2,8 +2,8 @@ package com.bigcustard.silverbars.model;
 
 import org.junit.Test;
 
-import static com.bigcustard.silverbars.model.OrderType.BUY;
-import static com.bigcustard.silverbars.model.OrderType.SELL;
+import static com.bigcustard.silverbars.model.BuyOrSell.BUY;
+import static com.bigcustard.silverbars.model.BuyOrSell.SELL;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BidTest {
@@ -72,7 +72,7 @@ public class BidTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void constructor_throwsIfNullOrderType() {
+    public void constructor_throwsIfNullBuyOrSell() {
 
         new Bid(null, 12345);
     }

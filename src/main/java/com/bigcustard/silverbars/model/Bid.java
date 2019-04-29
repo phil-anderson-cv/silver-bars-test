@@ -1,14 +1,16 @@
 package com.bigcustard.silverbars.model;
 
+import static com.bigcustard.silverbars.model.BuyOrSell.SELL;
+
 public final class Bid implements Comparable<Bid> {
 
-    private final OrderType buyOrSell;
+    private final BuyOrSell buyOrSell;
     private final int pencePerKg; // Prices held in pence to avoid rounding issues.
 
-    public Bid(OrderType buyOrSell, int pencePerKg) {
+    public Bid(BuyOrSell buyOrSell, int pencePerKg) {
 
         if(buyOrSell == null) {
-            throw new IllegalArgumentException("OrderType must not be null");
+            throw new IllegalArgumentException("BuyOrSell must not be null");
         }
 
         if(pencePerKg <= 0) {
@@ -19,7 +21,7 @@ public final class Bid implements Comparable<Bid> {
         this.pencePerKg = pencePerKg;
     }
 
-    public OrderType getBuyOrSell() {
+    public BuyOrSell getBuyOrSell() {
 
         return buyOrSell;
     }
@@ -45,16 +47,19 @@ public final class Bid implements Comparable<Bid> {
     @Override
     public int hashCode() {
 
-        return pencePerKg * OrderType.values().length + buyOrSell.ordinal(); // Guaranteed unique
+        return pencePerKg * BuyOrSell.values().length + buyOrSell.ordinal();
     }
 
     @Override
     public int compareTo(Bid other) {
 
-        if(this.buyOrSell != other.buyOrSell) {
-            return this.buyOrSell.compareTo(other.buyOrSell); // Put BUYs coming before SELLs
-        } else {
-            return buyOrSell.comparePrices(this.pencePerKg, other.pencePerKg); // Delegate to the OrderType to sort by price
-        }
+        return this.buyOrSell != other.buyOrSell ? buyOrSell.compareTo(other.buyOrSell) // Put BUYs before SELLs
+                                                 : comparePrice(other.pencePerKg); // Within BUYs or SELLs, sort by price
+    }
+
+    private int comparePrice(int otherPencePerKg) {
+
+        int result = Integer.compare(pencePerKg, otherPencePerKg);
+        return buyOrSell == SELL ? result : -result;
     }
 }

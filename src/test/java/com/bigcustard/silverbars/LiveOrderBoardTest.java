@@ -1,6 +1,5 @@
 package com.bigcustard.silverbars;
 
-import com.bigcustard.silverbars.model.Bid;
 import com.bigcustard.silverbars.model.BuyOrSell;
 import com.bigcustard.silverbars.model.Order;
 import com.bigcustard.silverbars.model.SummaryLine;
@@ -11,6 +10,7 @@ import java.util.List;
 
 import static com.bigcustard.silverbars.model.BuyOrSell.BUY;
 import static com.bigcustard.silverbars.model.BuyOrSell.SELL;
+import static com.bigcustard.silverbars.util.SampleDataHelper.buildOrder;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class LiveOrderBoardTest {
@@ -61,7 +61,7 @@ public class LiveOrderBoardTest {
     }
 
     @Test
-    public void cancel_doesNotCancelsNonExistentOrders() {
+    public void cancel_cancellingNonExistentOrdersThrowsAnException() {
 
         helper.registerOrder("testUser", BUY, 1.0, 100)
 
@@ -70,7 +70,7 @@ public class LiveOrderBoardTest {
               .cancelOrder("testUser", SELL, 1.0, 100)
               .cancelOrder("testUser", BUY, 1.0, 999)
 
-              .validateErrorCount(4);
+              .validateExceptionCount(4);
     }
 
     @Test
@@ -158,27 +158,27 @@ public class LiveOrderBoardTest {
     private class OrderBoardTestHelper {
 
         private final LiveOrderBoard orderBoard;
-        private int errorCount;
+        private int exceptionCount;
 
         private OrderBoardTestHelper() {
 
             this.orderBoard = new LiveOrderBoard();
         }
 
-        private OrderBoardTestHelper registerOrder(String userId, BuyOrSell buyOrSell, double quantityInKg, double priceInPounds) {
+        private OrderBoardTestHelper registerOrder(String userId, BuyOrSell buyOrSell, double quantity, double pricePerKg) {
 
-            Order order = new Order(userId, (int) (quantityInKg * 1000), new Bid(buyOrSell, (int) (priceInPounds * 100)));
+            Order order = buildOrder(userId, buyOrSell, quantity, pricePerKg);
             orderBoard.register(order);
             return this;
         }
 
-        private OrderBoardTestHelper cancelOrder(String userId, BuyOrSell buyOrSell, double quantityInKg, double priceInPounds) {
+        private OrderBoardTestHelper cancelOrder(String userId, BuyOrSell buyOrSell, double quantity, double pricePerKg) {
 
-            Order order = new Order(userId, (int) (quantityInKg * 1000), new Bid(buyOrSell, (int) (priceInPounds * 100)));
+            Order order = buildOrder(userId, buyOrSell, quantity, pricePerKg);
             try {
                 orderBoard.cancel(order);
-            } catch(NonExistentOrderException e) {
-                errorCount++;
+            } catch(NoOrderToCancelException e) {
+                exceptionCount++;
             }
             return this;
         }
@@ -195,10 +195,10 @@ public class LiveOrderBoardTest {
             return this;
         }
 
-        private OrderBoardTestHelper validateErrorCount(int expectedErrorCount) {
+        private OrderBoardTestHelper validateExceptionCount(int expectedExceptionCount) {
 
-            assertThat(errorCount).isEqualTo(expectedErrorCount);
-            errorCount = 0;
+            assertThat(exceptionCount).isEqualTo(expectedExceptionCount);
+            exceptionCount = 0;
             return this;
         }
     }

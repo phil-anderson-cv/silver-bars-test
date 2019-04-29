@@ -1,24 +1,26 @@
 package com.bigcustard.silverbars.model;
 
+import java.math.BigDecimal;
+import java.util.Objects;
+
 import static com.bigcustard.silverbars.model.BuyOrSell.SELL;
 
 public final class Bid implements Comparable<Bid> {
 
     private final BuyOrSell buyOrSell;
-    private final int pencePerKg; // Prices held in pence to avoid rounding issues.
+    private final BigDecimal pricePerKg;
 
-    public Bid(BuyOrSell buyOrSell, int pencePerKg) {
+    public Bid(BuyOrSell buyOrSell, BigDecimal pricePerKg) {
 
-        if(buyOrSell == null) {
-            throw new IllegalArgumentException("BuyOrSell must not be null");
-        }
+        Objects.requireNonNull(buyOrSell, "Parameter buyOrSell must not be null");
+        Objects.requireNonNull(pricePerKg, "Parameter pricePerKg must not be null");
 
-        if(pencePerKg <= 0) {
-            throw new IllegalArgumentException("Price must be greater than zero");
+        if(pricePerKg.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Parameter pricePerKg must be greater than zero");
         }
 
         this.buyOrSell = buyOrSell;
-        this.pencePerKg = pencePerKg;
+        this.pricePerKg = pricePerKg;
     }
 
     public BuyOrSell getBuyOrSell() {
@@ -26,9 +28,9 @@ public final class Bid implements Comparable<Bid> {
         return buyOrSell;
     }
 
-    public int getPencePerKg() {
+    public BigDecimal getPricePerKg() {
 
-        return pencePerKg;
+        return pricePerKg;
     }
 
     @Override
@@ -40,26 +42,27 @@ public final class Bid implements Comparable<Bid> {
 
         Bid bid = (Bid) o;
 
-        return pencePerKg == bid.pencePerKg && buyOrSell == bid.buyOrSell;
+        if (buyOrSell != bid.buyOrSell) return false;
+        return pricePerKg.equals(bid.pricePerKg);
 
     }
 
     @Override
     public int hashCode() {
 
-        return pencePerKg * BuyOrSell.values().length + buyOrSell.ordinal();
+        return pricePerKg.hashCode() * BuyOrSell.values().length + buyOrSell.ordinal();
     }
 
     @Override
     public int compareTo(Bid other) {
 
         return this.buyOrSell != other.buyOrSell ? buyOrSell.compareTo(other.buyOrSell) // Put BUYs before SELLs
-                                                 : comparePrice(other.pencePerKg); // Within BUYs or SELLs, sort by price
+                                                 : comparePrice(other.pricePerKg); // Within BUYs or SELLs, sort by price
     }
 
-    private int comparePrice(int otherPencePerKg) {
+    private int comparePrice(BigDecimal otherPricePerKg) {
 
-        int result = Integer.compare(pencePerKg, otherPencePerKg);
+        int result = pricePerKg.compareTo(otherPricePerKg);
         return buyOrSell == SELL ? result : -result;
     }
 }

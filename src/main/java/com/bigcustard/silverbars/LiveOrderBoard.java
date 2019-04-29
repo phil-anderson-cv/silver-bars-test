@@ -6,6 +6,7 @@ import com.bigcustard.silverbars.model.SummaryLine;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,7 +18,7 @@ public class LiveOrderBoard {
 
     // Like a normal set, but keeps a count of occurrences for each item added.
     private final MultiSet<Order> orders = new HashMultiSet<>();
-    private final Map<Bid, Integer> summary = new TreeMap<>();
+    private final Map<Bid, BigDecimal> summary = new TreeMap<>();
 
     public void register(Order order) {
 
@@ -28,7 +29,7 @@ public class LiveOrderBoard {
     public void cancel(Order order) {
 
         if (!orders.remove(order)) {
-            throw new NonExistentOrderException(order);
+            throw new NoOrderToCancelException(order);
         }
         removeFromSummary(order);
     }
@@ -43,25 +44,25 @@ public class LiveOrderBoard {
     private void addToSummary(Order order) {
 
         Bid bid = order.getBid();
-        int currentQuantity = getSummaryQuantity(bid);
-        summary.put(bid, currentQuantity + order.getQuantityInGrams());
+        BigDecimal currentQuantity = getSummaryQuantity(bid);
+        summary.put(bid, currentQuantity.add(order.getQuantity()));
     }
 
     private void removeFromSummary(Order order) {
 
         Bid bid = order.getBid();
-        int currentQuantity = getSummaryQuantity(bid);
-        int newQuantity = currentQuantity - order.getQuantityInGrams();
-        if(newQuantity != 0) {
+        BigDecimal currentQuantity = getSummaryQuantity(bid);
+        BigDecimal newQuantity = currentQuantity.subtract(order.getQuantity());
+        if(newQuantity.compareTo(BigDecimal.ZERO) != 0) {
             summary.put(bid, newQuantity);
         } else {
             summary.remove(bid);
         }
     }
 
-    private int getSummaryQuantity(Bid bid) {
+    private BigDecimal getSummaryQuantity(Bid bid) {
 
-        Integer quantity = summary.get(bid);
-        return quantity != null ? quantity : 0;
+        BigDecimal quantity = summary.get(bid);
+        return quantity != null ? quantity : BigDecimal.ZERO;
     }
 }

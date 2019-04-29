@@ -2,17 +2,20 @@ package com.bigcustard.silverbars.model;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
+
 import static com.bigcustard.silverbars.model.BuyOrSell.BUY;
 import static com.bigcustard.silverbars.model.BuyOrSell.SELL;
+import static com.bigcustard.silverbars.util.SampleDataHelper.buildBid;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BidTest {
 
-    private static final Bid SAMPLE_BUY = new Bid(BUY, 12345);
-    private static final Bid EQUIVALENT_BUY = new Bid(BUY, 12345);
-    private static final Bid SAMPLE_SELL = new Bid(SELL, 12345);
-    private static final Bid HIGH_PRICE_BUY = new Bid(BUY, 98765);
-    private static final Bid HIGH_PRICE_SELL = new Bid(SELL, 98765);
+    private static final Bid SAMPLE_BUY = buildBid(BUY, 12345);
+    private static final Bid EQUIVALENT_BUY = buildBid(BUY, 12345);
+    private static final Bid SAMPLE_SELL = buildBid(SELL, 12345);
+    private static final Bid HIGH_PRICE_BUY = buildBid(BUY, 98765);
+    private static final Bid HIGH_PRICE_SELL = buildBid(SELL, 98765);
 
     @Test
     public void compareTo_isEqualIfBidsAreTheSame() {
@@ -65,21 +68,27 @@ public class BidTest {
     }
 
     @Test
-    public void hashCode_isDifferentIfBidsAreDifferent() {
+    public void hashCode_isDifferentForDifferentBids() {
 
         assertThat(SAMPLE_BUY.hashCode()).isNotEqualTo(SAMPLE_SELL.hashCode());
         assertThat(SAMPLE_BUY.hashCode()).isNotEqualTo(HIGH_PRICE_BUY.hashCode());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void constructor_throwsIfNullBuyOrSell() {
 
-        new Bid(null, 12345);
+        new Bid(null, BigDecimal.valueOf(12345));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void constructor_throwsIfNullPrice() {
+
+        new Bid(BUY, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructor_throwsIfInvalidPrice() {
 
-        new Bid(BUY, -12345);
+        new Bid(BUY, BigDecimal.valueOf(-12345));
     }
 }

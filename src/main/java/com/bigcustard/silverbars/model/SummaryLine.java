@@ -1,16 +1,18 @@
 package com.bigcustard.silverbars.model;
 
+import java.math.BigDecimal;
+
 public final class SummaryLine {
 
     private static final String TO_STRING_TEMPLATE = "%s: %.1f kg for £%.2f";
 
     private final Bid bid;
-    private final int totalQuantityInGrams;
+    private final BigDecimal totalQuantity;
 
-    public SummaryLine(Bid bid, int totalQuantityInGrams) {
+    public SummaryLine(Bid bid, BigDecimal totalQuantity) {
 
         this.bid = bid;
-        this.totalQuantityInGrams = totalQuantityInGrams;
+        this.totalQuantity = totalQuantity;
     }
 
     public Bid getBid() {
@@ -18,13 +20,13 @@ public final class SummaryLine {
         return bid;
     }
 
-    public int getTotalQuantityInGrams() {
+    public BigDecimal getTotalQuantity() {
 
-        return totalQuantityInGrams;
+        return totalQuantity;
     }
 
     public String toString() {
 
-        return String.format(TO_STRING_TEMPLATE, bid.getBuyOrSell(), totalQuantityInGrams / 1000f, bid.getPencePerKg() / 100f);
+        return String.format(TO_STRING_TEMPLATE, bid.getBuyOrSell(), totalQuantity, bid.getPricePerKg());
     }
 }
